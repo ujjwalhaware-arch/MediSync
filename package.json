@@ -1,0 +1,13 @@
+{
+  "name": "medisync",
+  "version": "1.0.0",
+  "description": "MediSync – Intelligent Medicine Reminder & Treatment Adherence Tracker",
+  "scripts": {
+    "seed": "cd server && npm run seed",
+    "test": "cd server && npm test",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm run dev",
+    "build": "cd client && npm run build"
+  }
+}
+
