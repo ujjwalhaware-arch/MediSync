@@ -16,6 +16,7 @@ import SettingsPage from './pages/SettingsPage';
 import LoginPage from './pages/LoginPage';
 import AddMedicineModal from './components/AddMedicineModal';
 import VoiceAssistantModal from './components/VoiceAssistantModal';
+import PrescriptionScanModal from './components/PrescriptionScanModal';
 
 function MainApp() {
   const { user, loading } = useAuth();
@@ -23,6 +24,8 @@ function MainApp() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showAddMedicine, setShowAddMedicine] = useState(false);
   const [showVoiceModal, setShowVoiceModal] = useState(false);
+  const [showPrescriptionScan, setShowPrescriptionScan] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // If caregiver is inspecting a specific patient
   const [inspectPatientId, setInspectPatientId] = useState(null);
@@ -57,15 +60,19 @@ function MainApp() {
       case 'dashboard':
         return (
           <Dashboard
+            key={refreshKey}
             onOpenVoice={() => setShowVoiceModal(true)}
             onOpenAddMed={() => setShowAddMedicine(true)}
+            onOpenScanRx={() => setShowPrescriptionScan(true)}
             setCurrentTab={setCurrentTab}
           />
         );
       case 'medicines':
         return (
           <MedicinesPage
+            key={refreshKey}
             onOpenAddMed={() => setShowAddMedicine(true)}
+            onOpenScanRx={() => setShowPrescriptionScan(true)}
           />
         );
       case 'reminders':
@@ -108,6 +115,7 @@ function MainApp() {
         setCurrentTab={setCurrentTab}
         mobileOpen={mobileOpen}
         setMobileOpen={setMobileOpen}
+        onOpenScanRx={() => setShowPrescriptionScan(true)}
       />
 
       {/* Main Body */}
@@ -115,6 +123,7 @@ function MainApp() {
         <Header
           setMobileOpen={setMobileOpen}
           onOpenVoice={() => setShowVoiceModal(true)}
+          onOpenScanRx={() => setShowPrescriptionScan(true)}
         />
 
         <main className="flex-1 pb-16">
@@ -127,14 +136,26 @@ function MainApp() {
         isOpen={showAddMedicine}
         onClose={() => setShowAddMedicine(false)}
         onMedicineAdded={() => {
-          // reload or re-render
+          setRefreshKey(prev => prev + 1);
+        }}
+        onOpenScan={() => setShowPrescriptionScan(true)}
+      />
+
+      <PrescriptionScanModal
+        isOpen={showPrescriptionScan}
+        onClose={() => setShowPrescriptionScan(false)}
+        onMedicinesAdded={() => {
+          setRefreshKey(prev => prev + 1);
+          setCurrentTab('medicines');
         }}
       />
 
       <VoiceAssistantModal
         isOpen={showVoiceModal}
         onClose={() => setShowVoiceModal(false)}
-        onDoseUpdated={() => {}}
+        onDoseUpdated={() => {
+          setRefreshKey(prev => prev + 1);
+        }}
       />
     </div>
   );

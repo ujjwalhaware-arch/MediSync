@@ -13,7 +13,8 @@ import {
   ArrowUpRight,
   ShieldCheck,
   ShieldAlert,
-  Package
+  Package,
+  Camera
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
@@ -27,7 +28,7 @@ import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 
-export default function Dashboard({ onOpenVoice, onOpenAddMed, setCurrentTab }) {
+export default function Dashboard({ onOpenVoice, onOpenAddMed, onOpenScanRx, setCurrentTab }) {
   const { user } = useAuth();
   const { t } = useLanguage();
 
@@ -105,6 +106,13 @@ export default function Dashboard({ onOpenVoice, onOpenAddMed, setCurrentTab }) 
           </p>
 
           <div className="mt-5 flex flex-wrap items-center gap-3">
+            <button
+              onClick={onOpenScanRx}
+              className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-bold shadow-md shadow-emerald-900/20 transition-all active:scale-95"
+            >
+              <Camera className="w-4 h-4" />
+              <span>Scan Prescription (OCR)</span>
+            </button>
             <button
               onClick={onOpenVoice}
               className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-white text-teal-800 text-xs font-bold shadow-md hover:bg-teal-50 transition-all active:scale-95"

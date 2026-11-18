@@ -10,17 +10,25 @@
 **MediSync** is not just an ordinary alarm or reminder app. It is a comprehensive healthcare adherence platform designed for patients managing chronic conditions, elderly individuals who need intuitive assistance, and family caregivers who need peace of mind.
 
 MediSync bridges the gap between doctors' prescriptions and daily patient compliance by providing:
-1. **Intelligent Reminders & Scheduling** with stateful dose tracking (Taken / Skipped / Missed).
-2. **Automated Missed-Dose Escalation** that notifies linked caregivers when a dose remains untaken past the configured grace period.
-3. **Multilingual Voice Assistant** supporting English, Hindi (हिंदी), and Marathi (मराठी) for accessible voice interactions.
-4. **Predictive Inventory Management** that dynamically forecasts stock depletion dates based on actual confirmed consumption.
-5. **Adherence Analytics & Weekly PDF Reports** providing actionable healthcare insights for clinical visits.
+1. **Prescription OCR Auto-Scanner** to snap or upload doctor's prescriptions and automatically extract and schedule medicines.
+2. **Intelligent Reminders & Scheduling** with stateful dose tracking (Taken / Skipped / Missed).
+3. **Automated Missed-Dose Escalation** that notifies linked caregivers when a dose remains untaken past the configured grace period.
+4. **Multilingual Voice Assistant** supporting English, Hindi (हिंदी), and Marathi (मराठी) for accessible voice interactions.
+5. **Predictive Inventory Management** that dynamically forecasts stock depletion dates based on actual confirmed consumption.
+6. **Adherence Analytics & Weekly PDF Reports** providing actionable healthcare insights for clinical visits.
 
 ---
 
 ## 🚀 Key Features
 
-### 1. ⏰ Smart Medicine Scheduler & Real-Time Reminders
+### 1. 📷 Optical Prescription Scanner & Auto-Add (OCR)
+- **Camera & Image Upload**: Snap live photos using your device camera, drag-and-drop prescription scans, or paste from clipboard (Ctrl+V).
+- **Intelligent Medical Entity Parsing**: Automatically identifies medicine names, dosages (mg/ml), forms (Tablet, Capsule, Syrup, Drops, Inhaler), intake slots (`1-0-1`, `1-1-1`, `BD`, `TDS`, `HS`), and food timing (`Before Food`, `After Food`, `Empty Stomach`).
+- **Clinical Review & Edit**: Users can review and adjust recognized medicines, adjust quantities, toggle daily timeslots, and commit everything with a single click.
+- **Built-in 1-Click Demo Prescriptions**: Try realistic sample prescriptions (Fever & Antibiotics, Cardio-Diabetic Care, Pain & Acidity) instantly without needing a physical prescription.
+- **Batch API Insertion**: Adds multiple medicines in a single atomic transaction and generates today's dose logs immediately.
+
+### 2. ⏰ Smart Medicine Scheduler & Real-Time Reminders
 - Add medicines with dosage, medicine form (Tablets, Capsules, Syrup, Injection, Drops, Inhaler), food instructions (Before Food, After Food, With Food, Empty Stomach).
 - Set intake timings across standard slots: Morning, Afternoon, Evening, and Night, or custom timestamps.
 - Flexible recurrence: Daily, Specific Days of the Week, Interval Days, or Custom Date Ranges.
@@ -77,6 +85,7 @@ MediSync bridges the gap between doctors' prescriptions and daily patient compli
 | Layer | Technologies |
 |---|---|
 | **Frontend UI** | React.js (Vite), Tailwind CSS, Lucide React Icons |
+| **Optical OCR & Parsing** | Tesseract.js, Clinical Rx Regular Expression & Entity Extraction Engine |
 | **Data Visualization** | Recharts (Responsive Line, Bar, and Pie Charts) |
 | **Voice & Speech** | Web Speech API (`SpeechRecognition` & `SpeechSynthesis`) with localized grammar parsers |
 | **Document Export** | jsPDF & html2canvas for clinical PDF generation |

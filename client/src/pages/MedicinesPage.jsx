@@ -9,18 +9,22 @@ import {
   Package, 
   Search, 
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Camera,
+  Sparkles
 } from 'lucide-react';
 import { api } from '../services/api';
 import AddMedicineModal from '../components/AddMedicineModal';
 import RefillModal from '../components/RefillModal';
+import PrescriptionScanModal from '../components/PrescriptionScanModal';
 
-export default function MedicinesPage({ onOpenAddMed }) {
+export default function MedicinesPage({ onOpenAddMed, onOpenScanRx }) {
   const [medicines, setMedicines] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [refillMed, setRefillMed] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showScanModal, setShowScanModal] = useState(false);
 
   const loadMedicines = async () => {
     try {
@@ -67,13 +71,24 @@ export default function MedicinesPage({ onOpenAddMed }) {
           </p>
         </div>
 
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-sm transition-all active:scale-95 self-start sm:self-auto"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add New Medicine</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-auto">
+          <button
+            onClick={() => setShowScanModal(true)}
+            className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 via-teal-700 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-xs font-bold shadow-sm shadow-teal-600/20 transition-all active:scale-95"
+          >
+            <Camera className="w-4 h-4" />
+            <span>Scan Prescription (OCR)</span>
+            <span className="px-1.5 py-0.5 rounded-full text-[9px] bg-white/20 uppercase tracking-wider font-extrabold">Auto</span>
+          </button>
+
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-bold shadow-sm transition-all active:scale-95"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add Manually</span>
+          </button>
+        </div>
       </div>
 
       {/* Search & Filter Bar */}
@@ -92,16 +107,29 @@ export default function MedicinesPage({ onOpenAddMed }) {
       {loading ? (
         <div className="py-16 text-center text-slate-400 text-xs">Loading medicines...</div>
       ) : filtered.length === 0 ? (
-        <div className="p-12 bg-white rounded-2xl border border-dashed border-slate-200 text-center">
-          <Pill className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-          <h3 className="text-sm font-bold text-slate-700">No prescriptions found</h3>
-          <p className="text-xs text-slate-400 mt-1">Add your medicines to start receiving smart reminders.</p>
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="mt-4 px-4 py-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-xl"
-          >
-            + Add Medicine
-          </button>
+        <div className="p-12 bg-white rounded-3xl border border-dashed border-slate-200 text-center max-w-lg mx-auto">
+          <div className="w-16 h-16 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center mx-auto mb-4">
+            <Pill className="w-8 h-8" />
+          </div>
+          <h3 className="text-base font-bold text-slate-800">No active prescriptions found</h3>
+          <p className="text-xs text-slate-500 mt-1.5 max-w-sm mx-auto">
+            Scan your doctor's prescription with OCR to auto-extract and schedule medicines, or add them manually.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3 mt-6">
+            <button
+              onClick={() => setShowScanModal(true)}
+              className="inline-flex items-center space-x-2 px-5 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 rounded-xl shadow-md shadow-teal-600/20 active:scale-95 transition-all"
+            >
+              <Camera className="w-4 h-4" />
+              <span>Scan Prescription (OCR)</span>
+            </button>
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="px-4 py-2.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
+            >
+              + Add Manually
+            </button>
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -199,6 +227,13 @@ export default function MedicinesPage({ onOpenAddMed }) {
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
         onMedicineAdded={loadMedicines}
+        onOpenScan={() => setShowScanModal(true)}
+      />
+
+      <PrescriptionScanModal
+        isOpen={showScanModal}
+        onClose={() => setShowScanModal(false)}
+        onMedicinesAdded={loadMedicines}
       />
 
       {refillMed && (

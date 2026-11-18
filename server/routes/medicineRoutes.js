@@ -168,6 +168,122 @@ router.post('/', authenticateToken, async (req, res) => {
   }
 });
 
+// Batch add medicines (e.g. from Prescription OCR Scanner)
+router.post('/batch', authenticateToken, async (req, res) => {
+  try {
+    const { medicines } = req.body;
+    if (!Array.isArray(medicines) || medicines.length === 0) {
+      return res.status(400).json({ error: 'Please provide a non-empty array of medicines.' });
+    }
+
+    const userId = req.user.id;
+    const now = new Date().toISOString().split('T')[0];
+    const addedList = [];
+
+    for (const med of medicines) {
+      const {
+        name,
+        dosage = '1 tablet',
+        form = 'TABLET',
+        food_instruction = 'AFTER_FOOD',
+        color_tag = '#0d9488',
+        instructions = null,
+        start_date = now,
+        end_date = null,
+        is_chronic = true,
+        schedules = [],
+        initial_stock = 30,
+        unit = 'tablets',
+        low_stock_threshold = 5
+      } = med;
+
+      if (!name || !name.trim()) continue;
+
+      const medicineId = crypto.randomUUID();
+
+      await query.run(
+        `INSERT INTO medicines 
+         (id, user_id, name, dosage, form, food_instruction, color_tag, instructions, start_date, end_date, is_chronic)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          medicineId,
+          userId,
+          name.trim(),
+          dosage.trim() || '1 tablet',
+          form || 'TABLET',
+          food_instruction || 'AFTER_FOOD',
+          color_tag || '#0d9488',
+          instructions || null,
+          start_date || now,
+          end_date || null,
+          is_chronic ? 1 : 0
+        ]
+      );
+
+      // Insert schedules
+      if (Array.isArray(schedules) && schedules.length > 0) {
+        for (const sch of schedules) {
+          const scheduleId = crypto.randomUUID();
+          await query.run(
+            `INSERT INTO medication_schedules 
+             (id, medicine_id, time_slot, scheduled_time, dosage_quantity, recurrence_type, days_of_week)
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [
+              scheduleId,
+              medicineId,
+              sch.time_slot || 'MORNING',
+              sch.scheduled_time || '08:30',
+              sch.dosage_quantity || 1.0,
+              sch.recurrence_type || 'DAILY',
+              sch.days_of_week ? JSON.stringify(sch.days_of_week) : null
+            ]
+          );
+        }
+      } else {
+        const defaultScheduleId = crypto.randomUUID();
+        await query.run(
+          `INSERT INTO medication_schedules 
+           (id, medicine_id, time_slot, scheduled_time, dosage_quantity, recurrence_type)
+           VALUES (?, ?, 'MORNING', '08:30', 1.0, 'DAILY')`,
+          [defaultScheduleId, medicineId]
+        );
+      }
+
+      // Insert inventory
+      const inventoryId = crypto.randomUUID();
+      await query.run(
+        `INSERT INTO medicine_inventory 
+         (id, medicine_id, user_id, current_stock, unit, low_stock_threshold, last_refill_date, last_refill_quantity)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          inventoryId,
+          medicineId,
+          userId,
+          Number(initial_stock) || 30,
+          unit || 'tablets',
+          Number(low_stock_threshold) || 5,
+          now,
+          Number(initial_stock) || 30
+        ]
+      );
+
+      addedList.push({ id: medicineId, name: name.trim() });
+    }
+
+    // Automatically generate today's doses
+    await generateDailyDoses(userId);
+
+    res.status(201).json({
+      message: `Successfully added ${addedList.length} medicine(s) from prescription.`,
+      count: addedList.length,
+      medicines: addedList
+    });
+  } catch (error) {
+    console.error('Error batch adding medicines:', error);
+    res.status(500).json({ error: 'Failed to batch add medicines.' });
+  }
+});
+
 // Update medicine
 router.put('/:id', authenticateToken, async (req, res) => {
   try {

@@ -9,13 +9,14 @@ import {
   Package, 
   ShieldAlert, 
   CheckCircle2,
-  Volume2
+  Volume2,
+  Camera
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
 import { useLanguage } from '../context/LanguageContext';
 
-export default function Header({ setMobileOpen, onOpenVoice }) {
+export default function Header({ setMobileOpen, onOpenVoice, onOpenScanRx }) {
   const { user } = useAuth();
   const { 
     notifications, 
@@ -96,6 +97,18 @@ export default function Header({ setMobileOpen, onOpenVoice }) {
             >
               <Volume2 className="w-3.5 h-3.5 text-amber-600" />
               <span>Enable Alerts</span>
+            </button>
+          )}
+
+          {/* Scan Prescription OCR Button */}
+          {user?.role === 'PATIENT' && (
+            <button
+              onClick={onOpenScanRx}
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all active:scale-95 shadow-emerald-600/10"
+              title="Scan Doctor's Prescription (OCR)"
+            >
+              <Camera className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Scan Rx</span>
             </button>
           )}
 

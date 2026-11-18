@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Plus, Trash2, Clock, Calendar, Pill, ShieldAlert } from 'lucide-react';
+import { X, Plus, Trash2, Clock, Calendar, Pill, ShieldAlert, Camera, Sparkles } from 'lucide-react';
 import { api } from '../services/api';
 
 const DEFAULT_SLOTS = [
@@ -9,7 +9,7 @@ const DEFAULT_SLOTS = [
   { time_slot: 'NIGHT', scheduled_time: '21:30', label: 'Night (09:30 PM)' }
 ];
 
-export default function AddMedicineModal({ isOpen, onClose, onMedicineAdded }) {
+export default function AddMedicineModal({ isOpen, onClose, onMedicineAdded, onOpenScan }) {
   const [name, setName] = useState('');
   const [dosage, setDosage] = useState('1 tablet');
   const [form, setForm] = useState('TABLET');
@@ -113,6 +113,31 @@ export default function AddMedicineModal({ isOpen, onClose, onMedicineAdded }) {
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+          {/* Quick OCR Banner */}
+          {onOpenScan && (
+            <div className="p-3.5 rounded-2xl bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-200/80 flex items-center justify-between gap-2 shadow-xs">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-8 h-8 rounded-xl bg-teal-600 text-white flex items-center justify-center shrink-0">
+                  <Camera className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-teal-950">Have a Doctor's Prescription?</h4>
+                  <p className="text-[11px] text-teal-700">Scan photo with OCR to auto-fill details & schedules</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onOpenScan();
+                }}
+                className="px-3 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-xs whitespace-nowrap active:scale-95 transition-all"
+              >
+                Scan Rx Photo
+              </button>
+            </div>
+          )}
+
           {error && (
             <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center space-x-2">
               <ShieldAlert className="w-4 h-4 shrink-0" />

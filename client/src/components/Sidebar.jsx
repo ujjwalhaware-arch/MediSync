@@ -11,12 +11,14 @@ import {
   Settings,
   LogOut,
   Globe,
-  ChevronRight
+  ChevronRight,
+  Camera,
+  Sparkles
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 
-export default function Sidebar({ currentTab, setCurrentTab, mobileOpen, setMobileOpen }) {
+export default function Sidebar({ currentTab, setCurrentTab, mobileOpen, setMobileOpen, onOpenScanRx }) {
   const { user, logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
 
@@ -104,6 +106,29 @@ export default function Sidebar({ currentTab, setCurrentTab, mobileOpen, setMobi
             );
           })}
         </nav>
+
+        {/* Quick Prescription OCR Card */}
+        {isPatient && onOpenScanRx && (
+          <div className="mx-3 mb-3 p-3.5 rounded-2xl bg-gradient-to-br from-teal-600 via-teal-700 to-emerald-700 text-white shadow-md shadow-teal-700/10">
+            <div className="flex items-center space-x-2 text-xs font-bold mb-1">
+              <Camera className="w-4 h-4 text-emerald-200" />
+              <span>Prescription OCR</span>
+            </div>
+            <p className="text-[11px] text-teal-100/90 leading-tight mb-2.5">
+              Snap photo of doctor's prescription to auto-add medicines.
+            </p>
+            <button
+              onClick={() => {
+                if (setMobileOpen) setMobileOpen(false);
+                onOpenScanRx();
+              }}
+              className="w-full py-1.5 px-2 rounded-xl bg-white text-teal-800 hover:bg-teal-50 text-xs font-bold flex items-center justify-center space-x-1.5 shadow-xs transition-colors"
+            >
+              <span>Scan Prescription</span>
+              <Sparkles className="w-3 h-3 text-amber-500" />
+            </button>
+          </div>
+        )}
 
         {/* Language Selector */}
         <div className="px-4 py-3 mx-3 mb-3 bg-slate-50 rounded-xl border border-slate-200/60">

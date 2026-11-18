@@ -84,6 +84,17 @@ export const api = {
     return data;
   },
 
+  async addMedicinesBatch(medicines) {
+    const res = await fetch(`${API_BASE}/medicines/batch`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ medicines })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to batch add medicines');
+    return data;
+  },
+
   async updateMedicine(id, payload) {
     const res = await fetch(`${API_BASE}/medicines/${id}`, {
       method: 'PUT',
