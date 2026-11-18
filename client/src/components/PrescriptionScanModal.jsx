@@ -44,32 +44,13 @@ export default function PrescriptionScanModal({ isOpen, onClose, onMedicinesAdde
   const fileInputRef = useRef(null);
   const [showRawText, setShowRawText] = useState(false);
 
-  // Stop camera when closing modal or unmounting
-  useEffect(() => {
-    return () => {
-      stopCamera();
-    };
-  }, []);
-
-  // Listen for paste (Ctrl+V) image
-  useEffect(() => {
-    if (!isOpen) return;
-    const handlePaste = (e) => {
-      const items = e.clipboardData?.items;
-      if (!items) return;
-      for (const item of items) {
-        if (item.type.indexOf('image') !== -1) {
-          const blob = item.getAsFile();
-          handleImageFile(blob);
-          break;
-        }
-      }
-    };
-    window.addEventListener('paste', handlePaste);
-    return () => window.removeEventListener('paste', handlePaste);
-  }, [isOpen]);
-
-  if (!isOpen) return null;
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    setIsCameraActive(false);
+  };
 
   const startCamera = async () => {
     try {
@@ -88,14 +69,6 @@ export default function PrescriptionScanModal({ isOpen, onClose, onMedicinesAdde
       setErrorMessage('Could not access camera. Please allow camera permissions or upload an image file.');
       setIsCameraActive(false);
     }
-  };
-
-  const stopCamera = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-      streamRef.current = null;
-    }
-    setIsCameraActive(false);
   };
 
   const capturePhoto = () => {
@@ -126,6 +99,34 @@ export default function PrescriptionScanModal({ isOpen, onClose, onMedicinesAdde
     };
     reader.readAsDataURL(file);
   };
+
+  // Stop camera when closing modal or unmounting
+  useEffect(() => {
+    if (!isOpen) {
+      stopCamera();
+    }
+    return () => {
+      stopCamera();
+    };
+  }, [isOpen]);
+
+  // Listen for paste (Ctrl+V) image
+  useEffect(() => {
+    if (!isOpen) return;
+    const handlePaste = (e) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (const item of items) {
+        if (item.type.indexOf('image') !== -1) {
+          const blob = item.getAsFile();
+          handleImageFile(blob);
+          break;
+        }
+      }
+    };
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, [isOpen]);
 
   const handleSampleSelect = (sample) => {
     // Generate a quick canvas prescription simulation
@@ -370,6 +371,8 @@ export default function PrescriptionScanModal({ isOpen, onClose, onMedicinesAdde
     setOcrProgress(0);
     setErrorMessage('');
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
