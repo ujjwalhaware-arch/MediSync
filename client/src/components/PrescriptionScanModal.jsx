@@ -20,7 +20,6 @@ import {
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
-import { createWorker } from 'tesseract.js';
 import { parsePrescriptionText, SAMPLE_PRESCRIPTIONS } from '../services/prescriptionParser';
 import { api } from '../services/api';
 
@@ -188,6 +187,7 @@ export default function PrescriptionScanModal({ isOpen, onClose, onMedicinesAdde
 
     let worker = null;
     try {
+      const { createWorker } = await import('tesseract.js');
       worker = await createWorker('eng', 1, {
         logger: (m) => {
           if (m.status === 'recognizing text') {
